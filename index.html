@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mall Segments — Customer Clustering</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="noise" aria-hidden="true"></div>
+  <header class="nav">
+    <a class="logo" href="#top">Mall<span>Segments</span></a>
+    <nav>
+      <a href="#overview">Overview</a>
+      <a href="#explore">Explore</a>
+      <a href="#lab">Cluster lab</a>
+      <a href="#predict">Classify</a>
+      <a href="#method">Method</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <p class="eyebrow">Machine learning project · A.Y. 2026–27</p>
+      <h1>Customer segmentation using K-Means and Hierarchical clustering.</h1>
+      <p class="lede">
+        Group mall shoppers by age, income, and spending score — then turn those groups into marketing that actually fits.
+      </p>
+      <div class="hero-actions">
+        <a class="btn primary" href="#lab">Open the cluster lab</a>
+        <a class="btn ghost" href="#explore">Browse the dataset</a>
+      </div>
+      <dl class="stats">
+        <div>
+          <dt>Customers</dt>
+          <dd>200</dd>
+        </div>
+        <div>
+          <dt>Features</dt>
+          <dd>Age · Income · Spend</dd>
+        </div>
+        <div>
+          <dt>Algorithms</dt>
+          <dd>K-Means · Ward</dd>
+        </div>
+        <div>
+          <dt>Typical segments</dt>
+          <dd>5 clusters</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section id="overview" class="section">
+      <div class="section-head">
+        <p class="kicker">01 — Abstract</p>
+        <h2>Treat shoppers as groups, not a crowd.</h2>
+      </div>
+      <div class="split">
+        <p class="abstract">
+          Customer segmentation divides a base into groups that share similar traits. This project applies two unsupervised methods — K-Means and agglomerative Hierarchical clustering with Ward linkage — on mall customer data. Features are cleaned and standardized so distances stay fair. Optimal <em>K</em> is chosen with the Elbow method and checked with the Silhouette score. Hierarchical clustering builds a dendrogram that shows how customers merge. The result: segments such as high-income high-spenders, budget-conscious shoppers, and core regulars — useful for campaigns, offers, and retention.
+        </p>
+        <ul class="pillars">
+          <li>
+            <span>Discover</span>
+            Find natural groupings with no pre-labelled classes.
+          </li>
+          <li>
+            <span>Compare</span>
+            Run K-Means and Hierarchical clustering on the same data.
+          </li>
+          <li>
+            <span>Act</span>
+            Map each segment to a marketing or retention move.
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="explore" class="section">
+      <div class="section-head">
+        <p class="kicker">02 — Dataset</p>
+        <h2>Mall customers, at a glance.</h2>
+        <p>200 shoppers with gender, age, annual income (k$), and spending score (1–100). Filter the table and hover the scatter to inspect anyone.</p>
+      </div>
+
+      <div class="metric-row" id="data-metrics"></div>
+
+      <div class="panel">
+        <div class="panel-bar">
+          <div class="filters">
+            <label>
+              Gender
+              <select id="filter-gender">
+                <option value="all">All</option>
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+              </select>
+            </label>
+            <label>
+              Age
+              <input type="range" id="filter-age" min="18" max="70" value="70" />
+              <span id="filter-age-label">18–70</span>
+            </label>
+            <label class="grow">
+              Search ID
+              <input type="search" id="filter-search" placeholder="Customer ID…" />
+            </label>
+          </div>
+          <p class="muted" id="filter-count"></p>
+        </div>
+        <div class="explore-grid">
+          <div class="chart-wrap">
+            <canvas id="explore-chart" width="720" height="520"></canvas>
+            <div class="axis-labels">
+              <span>Annual income (k$)</span>
+              <span class="y">Spending score</span>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Gender</th>
+                  <th>Age</th>
+                  <th>Income</th>
+                  <th>Score</th>
+                </tr>
+              </thead>
+              <tbody id="table-body"></tbody>
+            </table>
+            <div class="pager">
+              <button type="button" id="page-prev">Prev</button>
+              <span id="page-info"></span>
+              <button type="button" id="page-next">Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="lab" class="section">
+      <div class="section-head">
+        <p class="kicker">03 — Cluster lab</p>
+        <h2>Tune the model. Watch segments form.</h2>
+        <p>Python runs the models: <code>sklearn.cluster.KMeans</code> and SciPy Ward linkage on standardized age, income, and spending score. The page only draws what the API returns.</p>
+        <p class="engine-line">Engine: <strong id="engine-badge">Python</strong></p>
+      </div>
+
+      <div class="lab-layout">
+        <aside class="controls">
+          <fieldset>
+            <legend>Algorithm</legend>
+            <div class="seg">
+              <button type="button" class="seg-btn active" data-algo="kmeans">K-Means</button>
+              <button type="button" class="seg-btn" data-algo="ward">Hierarchical</button>
+            </div>
+          </fieldset>
+          <label>
+            Clusters (K)
+            <input type="range" id="k-slider" min="2" max="8" value="5" />
+            <strong id="k-value">5</strong>
+          </label>
+          <label>
+            View
+            <select id="view-select">
+              <option value="income-score">Income × Spending</option>
+              <option value="age-score">Age × Spending</option>
+              <option value="age-income">Age × Income</option>
+              <option value="pca">PCA (age, income, spend)</option>
+            </select>
+          </label>
+          <div class="metric-stack" id="cluster-metrics"></div>
+          <p class="hint" id="algo-hint"></p>
+        </aside>
+
+        <div class="lab-main">
+          <div class="panel chart-card">
+            <canvas id="cluster-chart" width="800" height="560"></canvas>
+            <div id="chart-tooltip" class="tooltip" hidden></div>
+          </div>
+          <div class="dual-charts">
+            <div class="panel mini">
+              <h3>Elbow — within-cluster sum of squares</h3>
+              <canvas id="elbow-chart" width="420" height="220"></canvas>
+            </div>
+            <div class="panel mini">
+              <h3>Silhouette by K</h3>
+              <canvas id="sil-chart" width="420" height="220"></canvas>
+            </div>
+            <div class="panel mini dendro-panel" id="dendro-wrap" hidden>
+              <h3>SciPy dendrogram (Ward)</h3>
+              <img id="dendrogram" alt="Hierarchical clustering dendrogram from SciPy" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cards" id="segment-cards"></div>
+    </section>
+
+    <section id="predict" class="section">
+      <div class="section-head">
+        <p class="kicker">04 — Classify</p>
+        <h2>Drop in a shopper. See the segment.</h2>
+      </div>
+      <div class="predict-grid">
+        <form id="predict-form" class="panel form">
+          <label>Gender
+            <select id="p-gender">
+              <option>Female</option>
+              <option>Male</option>
+            </select>
+          </label>
+          <label>Age
+            <input type="number" id="p-age" min="18" max="80" value="32" />
+          </label>
+          <label>Annual income (k$)
+            <input type="number" id="p-income" min="10" max="150" value="80" />
+          </label>
+          <label>Spending score (1–100)
+            <input type="number" id="p-score" min="1" max="100" value="75" />
+          </label>
+          <button type="submit" class="btn primary">Assign segment</button>
+        </form>
+        <div class="panel result" id="predict-result">
+          <p class="muted">Run clustering in the lab, then classify. Assignment uses the current algorithm and K.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="method" class="section">
+      <div class="section-head">
+        <p class="kicker">05 — Method</p>
+        <h2>How the two algorithms differ.</h2>
+      </div>
+      <div class="method-grid">
+        <article>
+          <h3>Pre-processing</h3>
+          <p>Pandas loads <code>Mall_Customers.csv</code>. Age, income, and spending score go through <code>StandardScaler</code> so income does not dominate Euclidean distance.</p>
+        </article>
+        <article>
+          <h3>K-Means</h3>
+          <p>Python <code>KMeans</code> (scikit-learn, K-Means++, <code>random_state=42</code>) partitions customers into K groups that minimize intra-cluster variance. Best K follows the Elbow kink, checked with Silhouette.</p>
+        </article>
+        <article>
+          <h3>Hierarchical (Ward)</h3>
+          <p>SciPy <code>linkage(..., method="ward")</code> merges customers to keep variance low. <code>fcluster</code> cuts the dendrogram at K groups. The plot in the lab is that same tree.</p>
+        </article>
+        <article>
+          <h3>Visualization</h3>
+          <p>Primary view is income vs spending. The PCA view uses <code>sklearn.decomposition.PCA</code> on the three scaled numeric features.</p>
+        </article>
+      </div>
+      <p class="bottom-line">K-Means is efficient. Hierarchical is interpretable. Together they give a complete view for targeted marketing.</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div>
+      <p>K Neha Sreekari · 2520090240</p>
+      <p>K Sayee Vansika · 2520090239</p>
+    </div>
+    <div>
+      <p>Guide: Mrs. Dyuti Banerjee, Assistant Professor, AI &amp; DS</p>
+      <p>Department of CSIT · Machine Learning · B.Tech A.Y. 2026–27</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
